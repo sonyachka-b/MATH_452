@@ -1,5 +1,6 @@
 import numpy as np 
 import matplotlib.pyplot as mplt
+from scipy.optimize import curve_fit
 #make a big for loop for N 
 
 eigenvector_orthogonality = dict()
@@ -57,7 +58,6 @@ for N in range (50, 1000, 50):
          matrix_R[i][j] = (1 / N) * np.random.standard_normal(1)[0]
 
    R_final = matrix_R + matrix_R.T - np.diag(matrix_R.diagonal()) #look for an easier way
-   R_final = np.round(R_final, 2)
    #print(R_final)
 
 # Finidng W = R+S
@@ -135,6 +135,8 @@ print (eigenvector_orthogonality)
 '''
 Matplotlib Graphs
 '''
+
+
 # Figure 1 " Same indicies vs N"
 # Plot 1 "|<u_tilda_1, u_1>|^2 vs N"
 mplt.figure(1)
@@ -146,32 +148,60 @@ x_axis = np.arange(50, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][0][1])
-mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="blue", label="y = 2x")
-ref_curve_1 = 0.95
-mplt.plot(ref_curve_1, linestyle='-', color='black', label='1 - 1/100 (ref)')
+mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="blue", label="|<u_tilda_i, u_i>|^2")
+ref_curve_1 = np.full_like(x_axis, 0.99, dtype=np.float64)
+mplt.plot(x_axis, ref_curve_1, linestyle='--', color='orange', label='1 - 1/100 (ref)')
 mplt.legend()
+
+
+x_data = np.array(x_axis)
+
+
+def same_index_fit(N, a, b):
+    return 1 - a / (N**b)
+
+for idx, label in zip([0, 1, 2], ["ũ₁·u₁", "ũ₂·u₂", "ũ₃·u₃"]):
+    y_data = np.array([eigenvector_orthogonality[N][idx][1] for N in x_axis])
+    popt, _ = curve_fit(same_index_fit, x_data, y_data, p0=(1, 1))
+    y_fit = same_index_fit(x_data, *popt)
+    
+    mplt.figure(idx + 1)
+    mplt.plot(x_data, y_fit, linestyle="--", label=f"Best fit: 1 - {popt[0]:.2f}/N^{popt[1]:.2f}")
+    mplt.legend()
+
 
 # Plot 2 "|<u_tilda_2, u_2>|^2 vs N"
 #mplt.title("dot_2_2 vs N")
 #mplt.xlabel("N")
 #mplt.ylabel("|<u_tilda_2, u_2>|^2")
 mplt.figure(2)
+mplt.title("Same indicies d.p. vs N")
+mplt.xlabel("N")
+mplt.ylabel("|<u_tilda_2, u_2>|^2")
 x_axis = np.arange(50, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][1][1])
-mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="green", label="y = 2x")
+mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="green", label="|<u_tilda_2, u_2>|^2")
+
+ref_curve_2 = np.full_like(x_axis, 1 - 1/90.25, dtype=np.float64)
+mplt.plot(x_axis, ref_curve_1, linestyle='--', color='orange', label='1 - 1/90.25 (ref)')
 
 # Plot 3 "|<u_tilda_3, u_3>|^2 vs N"
 #mplt.xlabel("N")
 #mplt.ylabel("|<u_tilda_2, u_2>|^2")
 mplt.figure(3)
+mplt.title("Same indicies d.p. vs N")
+mplt.xlabel("N")
+mplt.ylabel("|<u_tilda_3, u_3>|^2")
 x_axis = np.arange(50, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][2][1])
-mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="red", label="y = 2x")
+mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="red", label="|<u_tilda_2, u_2>|^2")
 
+ref_curve_3 = np.full_like(x_axis, 1 - 1/75.69, dtype=np.float64)
+mplt.plot(x_axis, ref_curve_1, linestyle='--', color='orange', label='1 - 1/75.69 (ref)')
 
 
 # Figure 2 " Different indicies vs N"
@@ -185,9 +215,9 @@ x_axis = np.arange(50, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][3][1])
-mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="blue", label="y = 2x")
+mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="blue", label="|<u_tilda_1, u_2>|^2")
 
-# Plot 2 "|<u_tilda_2, u_2>|^2 vs N"
+# Plot 2 "|<u_tilda_3, u_4>|^2 vs N"
 #mplt.title("dot_2_2 vs N")
 #mplt.xlabel("N")
 #mplt.ylabel("|<u_tilda_2, u_2>|^2")
@@ -196,16 +226,16 @@ x_axis = np.arange(50, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][4][1])
-mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="green", label="y = 2x")
+mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="green", label="|<u_tilda_3, u_4>|^2")
 
-# Plot 3 "|<u_tilda_3, u_3>|^2 vs N"
+# Plot 3 "|<u_tilda_5, u_8>|^2 vs N"
 #mplt.xlabel("N")
 #mplt.ylabel("|<u_tilda_2, u_2>|^2")
 x_axis = np.arange(50, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][5][1])
-mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="red", label="y = 2x")
+mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="red", label="|<u_tilda_5, u_8>|^2")
 
 # Plot 4 - to compare 
 ref_curve = 1 / (x_axis ** 2)
@@ -213,9 +243,53 @@ ref_curve = 1 / (x_axis ** 2)
 mplt.plot(x_axis, ref_curve, linestyle='-', color='black', label='1/N² (ref)')
 mplt.legend()
 
+def diff_index_fit(N, a, b):
+    return a / (N**b)
+
+for idx, label in zip([3, 4, 5], ["ũ₁·u₂", "ũ₃·u₄", "ũ₅·u₈"]):
+    y_data = np.array([eigenvector_orthogonality[N][idx][1] for N in x_axis])
+    popt, _ = curve_fit(diff_index_fit, x_data, y_data, p0=(1, 2))
+    y_fit = diff_index_fit(x_data, *popt)
+    
+    mplt.figure(4)
+    mplt.plot(x_data, y_fit, linestyle="--", label=f"Best fit ({label}): {popt[0]:.2f}/N^{popt[1]:.2f}")
+    mplt.legend()
+
 print("Orthogonality Value Mappings:")
 print (eigenvector_orthogonality)
+
 
 mplt.show()
 
 
+
+def same_index_fit(N, a, b):
+    return 1 - a / (N**b)
+
+def diff_index_fit(N, a, b):
+    return a / (N**b)
+
+x_data = np.array(x_axis)
+
+# === Same index fits ===
+for idx, label in zip([0, 1, 2], ["ũ₁·u₁", "ũ₂·u₂", "ũ₃·u₃"]):
+    y_data = np.array([eigenvector_orthogonality[N][idx][1] for N in x_axis])
+    popt, _ = curve_fit(same_index_fit, x_data, y_data, p0=(1, 1))
+    y_fit = same_index_fit(x_data, *popt)
+    
+    mplt.figure(idx + 1)
+    mplt.plot(x_data, y_fit, linestyle="--", label=f"Best fit: 1 - {popt[0]:.2f}/N^{popt[1]:.2f}")
+    mplt.legend()
+
+# === Different index fits ===
+for idx, label in zip([3, 4, 5], ["ũ₁·u₂", "ũ₃·u₄", "ũ₅·u₈"]):
+    y_data = np.array([eigenvector_orthogonality[N][idx][1] for N in x_axis])
+    popt, _ = curve_fit(diff_index_fit, x_data, y_data, p0=(1, 2))
+    y_fit = diff_index_fit(x_data, *popt)
+    
+    mplt.figure(4)
+    mplt.plot(x_data, y_fit, linestyle="--", label=f"Best fit ({label}): {popt[0]:.2f}/N^{popt[1]:.2f}")
+    mplt.legend()
+
+# Find best fit 
+# Same indicies shouldn't converge to 1 that rapidly, they should converge to 1 - 1/(sing val)^2
