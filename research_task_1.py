@@ -1,5 +1,6 @@
 import numpy as np 
 import matplotlib.pyplot as mplt
+# for best fit 
 from scipy.optimize import curve_fit
 #make a big for loop for N 
 
@@ -7,7 +8,7 @@ eigenvector_orthogonality = dict()
 
 # mapping: matrix -> [dot_1_2, dot_4_8, ...]
 
-for N in range (50, 1000, 50):
+for N in range (100, 1000, 50):
 # Creating S with r = 10 where S is a square diagonal matrix
 #matrix_1 = numpy.
 #a_ii = rng.standard_normal(1)
@@ -27,10 +28,10 @@ for N in range (50, 1000, 50):
    matrix_S[4][4] = 8.2
    matrix_S[5][5] = 8
    matrix_S[6][6] = 7.6
-   matrix_S[7][7] = 0.03
-   matrix_S[8][8] = 0.002
-   matrix_S[9][9] = 0.0018
-   matrix_S[10][10] = 0.001
+   matrix_S[7][7] = 7
+   matrix_S[8][8] = 6.4
+   matrix_S[9][9] = 5.8
+   matrix_S[10][10] = 5.2
 
 #matrix_S = np.array([[10, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             #[0, 9.5, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -144,7 +145,7 @@ mplt.title("Same indicies d.p. vs N")
 mplt.xlabel("N")
 mplt.ylabel("|<u_tilda_i, u_i>|^2")
 
-x_axis = np.arange(50, 1000, 50)
+x_axis = np.arange(100, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][0][1])
@@ -153,14 +154,14 @@ ref_curve_1 = np.full_like(x_axis, 0.99, dtype=np.float64)
 mplt.plot(x_axis, ref_curve_1, linestyle='--', color='orange', label='1 - 1/100 (ref)')
 mplt.legend()
 
-
+#for best fit
 x_data = np.array(x_axis)
 
 
 def same_index_fit(N, a, b):
     return 1 - a / (N**b)
 
-for idx, label in zip([0, 1, 2], ["ũ₁·u₁", "ũ₂·u₂", "ũ₃·u₃"]):
+for idx, label in zip([0, 1, 2], ["u_tilda_1 * u_1", "u_tilda_2 * u_2", "u_tilda_3 * u_3"]):
     y_data = np.array([eigenvector_orthogonality[N][idx][1] for N in x_axis])
     popt, _ = curve_fit(same_index_fit, x_data, y_data, p0=(1, 1))
     y_fit = same_index_fit(x_data, *popt)
@@ -222,7 +223,7 @@ mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="blue", label="|<u_ti
 #mplt.xlabel("N")
 #mplt.ylabel("|<u_tilda_2, u_2>|^2")
 
-x_axis = np.arange(50, 1000, 50)
+x_axis = np.arange(100, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][4][1])
@@ -231,7 +232,7 @@ mplt.plot(x_axis, y_axis, marker="o", linestyle="-", color="green", label="|<u_t
 # Plot 3 "|<u_tilda_5, u_8>|^2 vs N"
 #mplt.xlabel("N")
 #mplt.ylabel("|<u_tilda_2, u_2>|^2")
-x_axis = np.arange(50, 1000, 50)
+x_axis = np.arange(100, 1000, 50)
 y_axis = []
 for k in eigenvector_orthogonality:
    y_axis.append(eigenvector_orthogonality[k][5][1])
